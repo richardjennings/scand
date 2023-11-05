@@ -33,7 +33,7 @@ func (s *GrypeScanner) Scan(images chan poll.ImageStatus, ctx context.Context, r
 
 			cache := filepath.Join(s.CachePath, cacheKey)
 
-			if _, err := os.Stat(cache); err != nil {
+			if finfo, err := os.Stat(cache); err != nil || finfo.Size() == 0 {
 				// generate sbom
 				cmd := exec.Command(s.SyftPath, image, "--output", "syft-json", "--file", cache)
 				cmd.Env = []string{
