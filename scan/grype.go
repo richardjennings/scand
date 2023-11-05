@@ -41,11 +41,12 @@ func (s *GrypeScanner) Scan(images chan poll.ImageStatus, ctx context.Context, r
 					"GRYPE_DB_AUTO_UPDATE=false",
 				}
 				if err := cmd.Start(); err != nil {
-					return err
+					log.Printf("error starting syft, %s", err)
+					continue
 				}
 				if err := cmd.Wait(); err != nil {
 					log.Printf("sbom generation failed for %s", image)
-					return fmt.Errorf("sbom generation failed for %s", image)
+					continue
 				}
 				log.Printf("generated sbom for %s", image)
 			}
@@ -56,33 +57,32 @@ func (s *GrypeScanner) Scan(images chan poll.ImageStatus, ctx context.Context, r
 
 			cmd := exec.Command(s.GrypePath, sbom, "--output", "sarif", "--file", reportCache)
 			if err := cmd.Start(); err != nil {
-				return err
+				log.Printf("error starting grype, %s", err)
+				continue
 			}
 			if err := cmd.Wait(); err != nil {
 				log.Printf("scan failed for %s", sbom)
-				out, err := cmd.Output()
-				if err != nil {
-					return err
-				}
-				log.Println(string(out))
-				return err
+				continue
 			}
 
 			f, err := os.Open(reportCache)
 			if err != nil {
 				log.Printf("could not find sarif %s", reportCache)
-				return err
+				continue
 			}
 			out, err := io.ReadAll(f)
 			if err := f.Close(); err != nil {
-				return err
+				log.Println(err)
+				continue
 			}
 			if err != nil {
-				return err
+				log.Println(err)
+				continue
 			}
 			report, err := sarif.FromBytes(out)
 			if err != nil {
-				return err
+				log.Println(err)
+				continue
 			}
 			log.Printf("generated scan report for %s", image)
 			result <- Result{

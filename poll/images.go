@@ -5,6 +5,7 @@ import (
 	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"log"
 	"net/url"
 	"time"
 )
@@ -29,8 +30,10 @@ func Images(clientset *kubernetes.Clientset, interval time.Duration, images chan
 		if err != nil {
 			return err
 		}
+		// @todo batch and deduplicate
 		for _, pod := range pods.Items {
 			for _, containerStatus := range pod.Status.ContainerStatuses {
+				log.Printf("found image %s", containerStatus.ImageID)
 				images <- ImageStatus{
 					Image:   containerStatus.Image,
 					ImageID: containerStatus.ImageID,

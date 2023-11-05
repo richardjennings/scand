@@ -38,6 +38,9 @@ var serveCmd = &cobra.Command{
 			s = &scan.DummyScanner{}
 		case "grype":
 			s, err = scan.NewGrypeScanner(cachePath, syftPath, grypePath)
+			if err != nil {
+				log.Fatalln(err)
+			}
 		default:
 			log.Fatalf("invalid scanner %s provided", scanner)
 		}
@@ -97,7 +100,7 @@ func init() {
 	serveCmd.Flags().StringVar(&cachePath, "cache-path", "/tmp/scand", "path to cache directory")
 	serveCmd.Flags().StringVar(&syftPath, "syft-path", "", "path to syft binary")
 	serveCmd.Flags().StringVar(&grypePath, "grype-path", "", "path to syft binary")
-	serveCmd.Flags().IntVar(&numScannerWorkers, "workers", 1, "number of scanner workers")
-	serveCmd.Flags().IntVar(&rescanIntervalMinutes, "rescan-interval", 1, "rescan interval in minutes")
+	serveCmd.Flags().IntVar(&numScannerWorkers, "workers", 4, "number of scanner workers")
+	serveCmd.Flags().IntVar(&rescanIntervalMinutes, "rescan-interval", 10, "rescan interval in minutes")
 	rootCmd.AddCommand(serveCmd)
 }

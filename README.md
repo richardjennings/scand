@@ -17,6 +17,12 @@ Syft is used to generate an Software Bill of Materials (SBOM) which is cached.
 
 Grype is configured to scan the cached SBOM for security vulnerabilities. 
 
+## Usage
+
+```
+go run main.go serve -k /Users/test/.kube/config --syft-path /opt/homebrew/bin/syft --grype-path /opt/homebrew/bin/grype
+```
+
 ## Status
 
 Proof of concept development.
